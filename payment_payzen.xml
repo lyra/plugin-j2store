@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+/**
+ * Copyright © Lyra Network.
+ * This file is part of PayZen plugin for J2Store. See COPYING.md for license details.
+ *
+ * @author    Lyra Network (https://www.lyra.com/)
+ * @copyright Lyra Network
+ * @license   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU General Public License (GPL v2)
+ */
+-->
+<extension version="2.5" type="plugin" group="j2store" method="upgrade">
+    <name>PayZen</name>
+    <version>1.0.0</version>
+    <creationDate>October 2019</creationDate>
+    <author>Lyra Network</author>
+    <authorEmail>support@payzen.eu</authorEmail>
+    <authorUrl>https://www.lyra.com</authorUrl>
+    <copyright>2015-2019 Copyright Lyra Network</copyright>
+    <license>GNU General Public License v2 or later</license>
+    <description>J2STORE_PAYZEN_PLUGIN_DESCRIPTION</description>
+    <scriptfile>script.payment_payzen.php</scriptfile>
+
+    <files>
+        <filename plugin="payment_payzen">payment_payzen.php</filename>
+        <filename>CHANGELOG.md</filename>
+        <filename>COPYING.md</filename>
+        <filename>README.md</filename>
+        <filename>LICENSE.txt</filename>
+        <filename>index.html</filename>
+        <folder>library</folder>
+        <folder>payment_payzen</folder>
+        <folder>installation_doc</folder>
+    </files>
+
+    <languages>
+        <language tag="en-GB">languages/en-GB.plg_j2store_payment_payzen.ini</language>
+        <language tag="fr-FR">languages/fr-FR.plg_j2store_payment_payzen.ini</language>
+        <language tag="de-DE">languages/de-DE.plg_j2store_payment_payzen.ini</language>
+        <language tag="es-ES">languages/es-ES.plg_j2store_payment_payzen.ini</language>
+    </languages>
+
+    <media folder="images" destination="../images/j2store">
+        <filename>payzen.png</filename>
+    </media>
+
+    <config>
+        <fields name="params">
+            <fieldset name="basic" addfieldpath="/plugins/j2store/payment_payzen/payment_payzen/fields">
+                <field type="spacer" label="J2STORE_PAYZEN_MODULE_INFORMATION" level="level1" />
+
+                <field name="developed_by" type="payzenlabel" label="J2STORE_PAYZEN_DEVELOPED_BY" default="&lt;a href=&quot;https://www.lyra.com/&quot; target=&quot;_blank&quot;&gt;Lyra Network&lt;/a&gt;" />
+                <field name="contact_email" type="payzenlabel" label="J2STORE_PAYZEN_CONTACT_EMAIL" default="&lt;a href=&quot;mailto:support@payzen.eu&quot;&gt;support@payzen.eu&lt;/a&gt;" />
+                <field name="contrib_version" type="payzenlabel" label="J2STORE_PAYZEN_CONTRIB_VERSION" default="1.0.0" />
+                <field name="gateway_version" type="payzenlabel" label="J2STORE_PAYZEN_GATEWAY_VERSION" default="V2" />
+                <field name="documentation" type="payzendoc" description="J2STORE_PAYZEN_DOC_TEXT" default="plugins/j2store/payment_payzen/installation_doc/PayZen_J2Store_3.x_v1.0_*.pdf" />
+
+                <field type="spacer" label="J2STORE_PAYZEN_PAYMENT_MODULE_SETTINGS" level="level1" />
+
+                <field name="display_name" type="payzentext" size="10" default="J2STORE_PAYZEN_PAYMENT_NAME_DEFAULT" label="J2STORE_PAYZEN_PAYMENT_NAME" description="J2STORE_PAYZEN_PAYMENT_NAME_DESC" />
+                <field name="display_image" type="media" label="J2STORE_PAYZEN_LOGOS" description="J2STORE_PAYZEN_LOGOS_DESC" directory="j2store" default="images/j2store/payzen.png" hide_default="1" hide_none="1" stripext="0" exclude="^_" />
+                <field name="geozone_id" type="geozonelist" default="" label="J2STORE_PAYZEN_GEOZONE_RESTRICTION" description="J2STORE_PAYZEN_GEOZONE_RESTRICTION_DESC" addfieldpath="/administrator/components/com_j2store/models/fields" />
+
+                <field type="spacer" label="J2STORE_PAYZEN_PAYMENT_GATEWAY_ACCESS" level="level1" />
+
+                <field name="site_id" type="text" size="10" default="12345678" label="J2STORE_PAYZEN_SITE_ID" description="J2STORE_PAYZEN_SITE_ID_DESC" autocomplete="off"/>
+                <field name="key_test" type="payzentext" size="20" default="1111111111111111" label="J2STORE_PAYZEN_TEST_KEY" description="J2STORE_PAYZEN_TEST_KEY_DESC" autocomplete="off"/>
+                <field name="key_prod" type="text" size="20" default="2222222222222222" label="J2STORE_PAYZEN_PROD_KEY" description="J2STORE_PAYZEN_PROD_KEY_DESC" autocomplete="off"/>
+                <field name="ctx_mode" type="payzenradio" default="TEST" label="J2STORE_PAYZEN_CTX_MODE" description="J2STORE_PAYZEN_CTX_MODE_DESC">
+                    <option value="TEST">J2STORE_PAYZEN_TEST</option>
+                    <option value="PRODUCTION">J2STORE_PAYZEN_PRODUCTION</option>
+                </field>
+                <field name="sign_algo" type="payzenradio" default="SHA-256" label="J2STORE_PAYZEN_SIGN_ALGO" description="J2STORE_PAYZEN_SIGN_ALGO_DESC">
+                    <option value="SHA-1">SHA-1</option>
+                    <option value="SHA-256">HMAC-SHA-256</option>
+                </field>
+                <field name="url_check" type="payzenlabel" label="J2STORE_PAYZEN_URL_CHECK" description="J2STORE_PAYZEN_URL_CHECK_DESC" url="true" default="index.php?option=com_j2store&amp;view=checkout&amp;task=confirmPayment&amp;orderpayment_type=payment_payzen" />
+                <field name="platform_url" type="text" size="50" default="https://secure.payzen.eu/vads-payment/" label="J2STORE_PAYZEN_PLATFORM_URL" description="J2STORE_PAYZEN_PLATFORM_URL_DESC" />
+
+                <field type="spacer" label="J2STORE_PAYZEN_PAYMENT_PAGE" level="level1" />
+
+                <field name="language" type="payzenlist" default="fr" label="J2STORE_PAYZEN_LANGUAGE" description="J2STORE_PAYZEN_LANGUAGE_DESC" />
+                <field name="available_languages" type="payzenlist" multiple="multiple" default="" style="width: 300px;" label="J2STORE_PAYZEN_AVAILABLE_LANGUAGES" size= "8" description="J2STORE_PAYZEN_AVAILABLE_LANGUAGES_DESC" />
+                <field name="capture_delay" type="text" size="10" default="" label="J2STORE_PAYZEN_CAPTURE_DELAY" description="J2STORE_PAYZEN_CAPTURE_DELAY_DESC" />
+                <field name="validation_mode" type="list" default="" label="J2STORE_PAYZEN_VALIDATION_MODE" description="J2STORE_PAYZEN_VALIDATION_MODE_DESC">
+                    <option value="">J2STORE_PAYZEN_DEFAULT</option>
+                    <option value="0">J2STORE_PAYZEN_AUTOMATIC</option>
+                    <option value="1">J2STORE_PAYZEN_MANUAL</option>
+                </field>
+                <field name="payment_cards" type="payzenlist" multiple="multiple" default="" label="J2STORE_PAYZEN_PAYMENT_CARDS" style="width: 300px;" description="J2STORE_PAYZEN_PAYMENT_CARDS_DESC" />
+
+                <field type="spacer" label="J2STORE_PAYZEN_SELECTIVE_3DS" level="level1" />
+                <field name="threeds_min_amount" type="text" size="10" default="" label="J2STORE_PAYZEN_THREEDS_MIN_AMOUNT" description="J2STORE_PAYZEN_THREEDS_MIN_AMOUNT_DESC" />
+
+                <field type="spacer" label="J2STORE_PAYZEN_AMOUNT_RESTRICTIONS" level="level1" />
+
+                <field name="min_amount" type="text" size="10" default="" label="J2STORE_PAYZEN_AMOUNT_MIN" description="J2STORE_PAYZEN_AMOUNT_MIN_DESC" />
+                <field name="max_amount" type="text" size="10" default="" label="J2STORE_PAYZEN_AMOUNT_MAX" description="J2STORE_PAYZEN_AMOUNT_MAX_DESC" />
+
+                <field type="spacer" label="J2STORE_PAYZEN_RETURN_OPTIONS" level="level1" />
+
+                <field name="redirect_enabled" type="radio" default="0" label="J2STORE_PAYZEN_REDIRECT_ENABLED" description="J2STORE_PAYZEN_REDIRECT_ENABLED_DESC">
+                    <option value="0">J2STORE_PAYZEN_NO</option>
+                    <option value="1">J2STORE_PAYZEN_YES</option>
+                </field>
+                <field name="redirect_success_timeout" type="text" size="10" default="5" label="J2STORE_PAYZEN_REDIRECT_SUCCESS_TIMEOUT" description="J2STORE_PAYZEN_REDIRECT_SUCCESS_TIMEOUT_DESC" />
+                <field name="redirect_success_message" type="payzentext" size="50" default="J2STORE_PAYZEN_REDIRECT_SUCCESS_MESSAGE_DEFAULT" label="J2STORE_PAYZEN_REDIRECT_SUCCESS_MESSAGE" description="J2STORE_PAYZEN_REDIRECT_SUCCESS_MESSAGE_DESC" />
+                <field name="redirect_error_timeout" type="text" size="10" default="5" label="J2STORE_PAYZEN_REDIRECT_ERROR_TIMEOUT" description="J2STORE_PAYZEN_REDIRECT_ERROR_TIMEOUT_DESC" />
+                <field name="redirect_error_message" type="payzentext" size="50" default="J2STORE_PAYZEN_REDIRECT_ERROR_MESSAGE_DEFAULT" label="J2STORE_PAYZEN_REDIRECT_ERROR_MESSAGE" description="J2STORE_PAYZEN_REDIRECT_ERROR_MESSAGE_DESC" />
+                <field name="return_mode" type="list" default="GET" label="J2STORE_PAYZEN_RETURN_MODE" description="J2STORE_PAYZEN_RETURN_MODE_DESC">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                </field>
+            </fieldset>
+        </fields>
+    </config>
+</extension>
