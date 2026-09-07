@@ -11,28 +11,31 @@
 // No direct access.
 defined('_JEXEC') or die('Restricted access');
 
-JFormHelper::loadFieldClass('text');
+if (! class_exists('PayzenTools')) {
+    require_once JPath::clean(__DIR__ . '/../../library/sdk-autoload.php');
+    JLoader::register('PayzenTools', JPath::clean(__DIR__ . '/../../library/PayzenTools.php'));
+}
+
+use Joomla\CMS\Form\FormHelper;
+
+FormHelper::loadFieldClass('text');
 
 /**
  * Renders a text element.
  */
 class JFormFieldPayzenText extends JFormFieldText
 {
+    public $type = 'payzentext';
 
-    var $type = 'payzentext';
-
-    public function renderField($options = array())
+    public function renderField($options = [])
     {
-        if (! class_exists('PayzenTools')) {
-            require_once(JPATH_PLUGINS . DS . 'j2store' . DS . 'payment_payzen' . DS . 'library' . DS . 'PayzenTools.php');
-        }
-
         $plugin_features = PayzenTools::$plugin_features;
         if ($plugin_features['qualif'] && ($this->fieldname === 'key_test')) {
             return '';
-        } else {
-            $this->value = JText::_($this->value); // Translate default value.
-            return parent::renderField($options);
         }
+
+        $this->value = JText::_($this->value); // Translate default value.
+
+        return parent::renderField($options);
     }
 }

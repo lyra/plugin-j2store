@@ -1,4 +1,4 @@
-Copyright © 2015-2019 Lyra Network.
+Copyright © 2015-2026 Lyra Network.
 
 PayZen for J2Store is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

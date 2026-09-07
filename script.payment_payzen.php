@@ -16,12 +16,16 @@ class plgJ2StorePayment_payzenInstallerScript
     function preflight($type, $parent)
     {
         $xml_file = JPATH_ADMINISTRATOR . '/components/com_j2store/com_j2store.xml';
-        $xml = JFactory::getXML($xml_file);
-        $version = (string)$xml->version;
+        $xml = simplexml_load_file($xml_file);
+        $version = ($xml === false) ? '' : (string) $xml->version;
 
         // Check for minimum requirement.
         if (version_compare($version, '3.0.0', 'lt')) {
-            Jerror::raiseWarning(null, 'You are using an old version of J2Store. Please upgrade to the latest version.');
+            \Joomla\CMS\Factory::getApplication()->enqueueMessage(
+                'You are using an old version of J2Store. Please upgrade to the latest version.',
+                'warning'
+            );
+
             return false;
         }
     }

@@ -11,23 +11,25 @@
 // No direct access.
 defined('_JEXEC') or die('Restricted access');
 
-JFormHelper::loadFieldClass('filelist');
+if (! class_exists('Lyranetwork\Payzen\Sdk\Form\Api')) {
+    require_once JPath::clean(__DIR__ . '/../../library/sdk-autoload.php');
+}
+
+use Joomla\CMS\Form\FormHelper;
+use Lyranetwork\Payzen\Sdk\Form\Api as PayzenApi;
+
+FormHelper::loadFieldClass('filelist');
 
 /**
  * Renders an item select element (with multiple choice possibility).
  */
 class JFormFieldPayzenList extends JFormFieldList
 {
-
     protected $type = 'payzenlist';
 
     public function getOptions()
     {
-        if (! class_exists ('PayzenApi')) {
-            require_once(JPATH_PLUGINS . DS . 'j2store' . DS . 'payment_payzen' . DS . 'library' . DS . 'PayzenApi.php');
-        }
-
-        $payzen_options = array();
+        $payzen_options = [];
 
         if ($this->fieldname === 'payment_cards') {
             $payzen_options = PayzenApi::getSupportedCardTypes();
@@ -38,7 +40,7 @@ class JFormFieldPayzenList extends JFormFieldList
         }
 
         // Construct an array of HTML option tags.
-        $options = array();
+        $options = [];
         foreach ($payzen_options as $key => $value) {
             $options[] = JHTML::_('select.option', $key, JText::_($value));
         }
