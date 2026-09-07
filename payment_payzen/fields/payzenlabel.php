@@ -11,14 +11,13 @@
 // No direct access.
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.form.formfield');
+use Joomla\CMS\Form\FormField;
 
 /**
  * Renders a label element.
  */
-class JFormFieldPayzenLabel extends JFormField
+class JFormFieldPayzenLabel extends FormField
 {
-
     protected $type = 'payzenlabel';
 
     public function getInput()

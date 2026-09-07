@@ -14,16 +14,25 @@ defined('_JEXEC') or die('Restricted access');
 require_once JPATH_ADMINISTRATOR . '/components/com_j2store/library/plugins/payment.php';
 require_once JPATH_ADMINISTRATOR . '/components/com_j2store/helpers/j2store.php';
 
-require_once JPath::clean(dirname(__FILE__) . '/library/PayzenApi.php');
-require_once JPath::clean(dirname(__FILE__) . '/library/PayzenTools.php');
+require_once JPath::clean(dirname(__FILE__) . '/library/sdk-autoload.php');
+
+JLoader::register('PayzenTools', JPath::clean(dirname(__FILE__) . '/library/PayzenTools.php'));
+
+use Lyranetwork\Payzen\Sdk\Form\Api as PayzenApi;
+use Lyranetwork\Payzen\Sdk\Form\Request as PayzenRequest;
+use Lyranetwork\Payzen\Sdk\Form\Response as PayzenResponse;
 
 class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
 {
-
     /**
      * @var $_element string Should always correspond with the plugin's filename, forcing it to be unique.
      */
     public $_element = 'payment_payzen';
+
+    /**
+     * @var $gateway_url string The payment page URL.
+     */
+    private $gateway_url = 'https://secure.payzen.eu/vads-payment/';
 
     /**
      * Class constructor.
@@ -37,6 +46,37 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
 
         $this->loadLanguage('', JPATH_ADMINISTRATOR);
         PayzenTools::initLog();
+    }
+
+    function onJ2StoreIsJ2Store4($element) {
+        if (! $this->_isPayzenMethod($element)) {
+            return null;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks to make sure that this plugin is the one being triggered by the extension
+     *
+     * @access public
+     * @return bool Parameter value
+     * @since 2.5
+     */
+    function _isPayzenMethod($row)
+    {
+        $element = $this->_element;
+
+        $success = false;
+        if (is_object($row) && ! empty($row->element) && $row->element == $element) {
+            $success = true;
+        }
+
+        if (is_string($row) && $row == $element) {
+            $success = true;
+        }
+
+        return $success;
     }
 
     function onJ2StoreGetPaymentOptions($element, $order)
@@ -77,15 +117,15 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
 
         PayzenTools::log('Generating payment form for order #' . $order->order_id);
 
-        $data = array();
+        $data = [];
 
         // Set config parameters.
-        $param_names = array(
+        $param_names = [
             'site_id', 'key_test', 'key_prod', 'ctx_mode',
             'available_languages', 'capture_delay', 'validation_mode', 'payment_cards',
             'redirect_enabled', 'redirect_success_timeout', 'redirect_success_message',
             'redirect_error_timeout', 'redirect_error_message', 'return_mode', 'sign_algo'
-        );
+        ];
 
         foreach ($param_names as $name) {
             $value = $this->params->get($name);
@@ -97,11 +137,11 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
         }
 
         // Set return URL.
-        $url_return = JROUTE::_(JURI::root() . 'index.php?option=com_j2store&view=checkout&task=confirmPayment&orderpayment_type='.$this->_element);
+        $url_return = JROUTE::_(JURI::root() . 'index.php?option=com_j2store&view=checkout&task=confirmPayment&orderpayment_type=' . $this->_element);
         $data['url_return'] = $url_return;
 
         // Contrib param.
-        $data['contrib'] = 'J2Store_3.x_1.0.0/' . JVERSION . '_' . J2STORE_VERSION . '/' . PHP_VERSION;
+        $data['contrib'] = 'J2Store_3.x-4.x_1.1.0/' . JVERSION . '_' . J2STORE_VERSION . '/' . PayzenApi::shortPhpVersion();
 
         // Set the language code.
         $lang = JFactory::getLanguage();
@@ -114,6 +154,7 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
         $currency = PayzenApi::findCurrencyByAlphaCode($currency_values['currency_code']);
         if (! $currency) {
             PayzenTools::log('Could not find currency numeric code for currency : ' . $currency_values['currency_code']);
+
             return false;
         }
 
@@ -130,7 +171,7 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
         $data['cust_address'] = $order_info->billing_address_1 . ' ' . $order_info->billing_address_2;
         $data['cust_zip'] = $order_info->billing_zip;
         $data['cust_city'] = $order_info->billing_city;
-        $data['cust_state'] = $this->getZoneById($order_info->billing_zone_id)->zone_code ;
+        $data['cust_state'] = $this->getZoneById($order_info->billing_zone_id)->zone_code;
         $data['cust_country'] = $this->getCountryById($order_info->billing_country_id)->country_isocode_2;
         $data['cust_phone'] = $order_info->billing_phone_1;
         $data['cust_cell_phone'] = $order_info->billing_phone_2;
@@ -140,7 +181,7 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
         $data['ship_to_city'] = $order_info->shipping_city;
         $data['ship_to_street'] = $order_info->shipping_address_1;
         $data['ship_to_street2'] = $order_info->shipping_address_2;
-        $data['ship_to_state'] = $this->getZoneById($order_info->shipping_zone_id)->zone_code ;
+        $data['ship_to_state'] = $this->getZoneById($order_info->shipping_zone_id)->zone_code;
         $data['ship_to_country'] = $this->getCountryById($order_info->shipping_country_id)->country_isocode_2;
         $data['ship_to_phone_num'] = $order_info->shipping_phone_1 ? $order_info->shipping_phone_1 : $order_info->shipping_phone_2;
         $data['ship_to_zip'] = $order_info->shipping_zip;
@@ -165,7 +206,6 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
 
         $data['threeds_mpi'] = $threeds_mpi;
 
-        require_once JPath::clean(dirname(__FILE__) . '/library/PayzenRequest.php');
         $request = new PayzenRequest();
         $request->setFromArray($data);
 
@@ -173,11 +213,12 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
 
         // Prepare the payment form.
         $vars = new JObject();
-        $vars->action = $this->params->get('platform_url');
+        $vars->action = $this->gateway_url;
         $vars->fields = $request->getRequestHtmlFields();
 
         // Let's check the values submitted.
         $html = $this->_getLayout('prepayment', $vars);
+
         return $html;
     }
 
@@ -193,7 +234,6 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
         $app = JFactory::getApplication();
         $data = $app->input->getArray($_REQUEST);
 
-        require_once JPath::clean(dirname(__FILE__) . '/library/PayzenResponse.php');
         $response = new PayzenResponse(
             $data,
             $this->params->get('ctx_mode'),
@@ -217,6 +257,7 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
             } else {
                 PayzenTools::log('RETURN URL PROCESS END.');
                 $vars->message = JText::_('J2STORE_PAYZEN_ERROR_MSG');
+
                 return $this->_getLayout('postpayment', $vars);
             }
         }
@@ -224,7 +265,7 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
         // Retrieve order info from database.
         F0FTable::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_j2store/tables');
         $order = F0FTable::getInstance('Order', 'J2StoreTable');
-        $order->load(array('order_id' => $response->get('order_id')));
+        $order->load(['order_id' => $response->get('order_id')]);
 
         if (empty($order->order_id)) {
             // Order not found.
@@ -237,6 +278,7 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
             } else {
                 PayzenTools::log('RETURN URL PROCESS END.');
                 $vars->message = JText::_('J2STORE_PAYZEN_ERROR_MSG');
+
                 return $this->_getLayout('postpayment', $vars);
             }
         }
@@ -247,9 +289,8 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
         }
 
         // Process according to order status and payment result.
-        if (in_array($order->order_state_id, array(4, 5))) {
+        if (in_array($order->order_state_id, [4, 5])) {
             // Order not processed yet.
-
             $order->transaction_id = $response->get('trans_id');
             $order->transaction_details = $this->_formatTransactionDetails($data);
             $order->transaction_status = $response->getTransStatus();
@@ -266,9 +307,11 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
                     $app->close();
                 } else {
                     PayzenTools::log('RETURN URL PROCESS END.');
+
                     $vars->message = JText::_('J2STORE_PAYZEN_SUCCESS_MSG');
                     $html = $this->_getLayout('postpayment', $vars);
                     $html .= $this->_displayArticle();
+
                     return $html;
                 }
             }
@@ -287,6 +330,7 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
 
             if (! $order->store()) {
                 $vars->message = JText::_('J2STORE_PAYZEN_ERROR_MSG');
+
                 return $this->_getLayout('postpayment', $vars);
             }
 
@@ -302,7 +346,6 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
                 } else {
                     if ($this->params->get('ctx_mode') === 'TEST') {
                         // TEST mode warning.
-
                         if (JFactory::getConfig()->get('offline') == 1) {
                             // Maintenance mode, check URL cannot work.
                             $app->enqueueMessage(JText::_('J2STORE_PAYZEN_MAINTENANCE_MODE'));
@@ -316,9 +359,11 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
                     }
 
                     PayzenTools::log('RETURN URL PROCESS END.');
+
                     $vars->message = JText::_('J2STORE_PAYZEN_SUCCESS_MSG');
                     $html = $this->_getLayout('postpayment', $vars);
                     $html .= $this->_displayArticle();
+
                     return $html;
                 }
             } else {
@@ -330,6 +375,7 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
                     $app->close();
                 } else {
                     $vars->message = JText::_('J2STORE_PAYZEN_FAILURE_MSG');
+
                     return $this->_getLayout('postpayment', $vars);
                 }
             }
@@ -338,7 +384,6 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
             PayzenTools::log("Order #{$response->get('order_id')} is already saved.");
 
             $expected_order_state_id = $this->_newOrderState($response);
-
             if ($expected_order_state_id != $order->order_state_id) {
                 PayzenTools::log("Error! Invalid payment result received for already saved order #{$response->get('order_id')}." .
                     "Payment result : {$response->getTransStatus()}, Order status : {$order->order_state}.");
@@ -350,6 +395,7 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
                 } else {
                     PayzenTools::log('RETURN URL PROCESS END.');
                     $vars->message = JText::_('J2STORE_PAYZEN_ERROR_MSG');
+
                     return $this->_getLayout('postpayment', $vars);
                 }
             } elseif ($response->isAcceptedPayment()) {
@@ -361,9 +407,11 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
                     $app->close();
                 } else {
                     PayzenTools::log('RETURN URL PROCESS END.');
+
                     $vars->message = JText::_('J2STORE_PAYZEN_SUCCESS_MSG');
                     $html = $this->_getLayout('postpayment', $vars);
                     $html .= $this->_displayArticle();
+
                     return $html;
                 }
             } else {
@@ -376,6 +424,7 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
                 } else {
                     PayzenTools::log('RETURN URL PROCESS END.');
                     $vars->message = JText::_('J2STORE_PAYZEN_FAILURE_MSG');
+
                     return $this->_getLayout('postpayment', $vars);
                 }
             }
@@ -391,7 +440,7 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
     private function _formatTransactionDetails($data)
     {
         $separator = ' | ';
-        $formatted = array();
+        $formatted = [];
 
         foreach ($data as $key => $value) {
             if (($key !== 'signature') && (strpos($key, 'vads_') !== 0)) {
@@ -408,12 +457,16 @@ class plgJ2StorePayment_payzen extends J2StorePaymentPlugin
     {
         if ($response->isPendingPayment()) {
             return 4;
-        } elseif ($response->isAcceptedPayment()) {
-            return 1;
-        } elseif ($response->isCancelledPayment()) {
-            return 6;
-        } else {
-            return 3;
         }
+
+        if ($response->isAcceptedPayment()) {
+            return 1;
+        }
+
+        if ($response->isCancelledPayment()) {
+            return 6;
+        }
+
+        return 3;
     }
 }

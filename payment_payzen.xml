@@ -11,12 +11,12 @@
 -->
 <extension version="2.5" type="plugin" group="j2store" method="upgrade">
     <name>PayZen</name>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <creationDate>October 2019</creationDate>
     <author>Lyra Network</author>
-    <authorEmail>support@payzen.eu</authorEmail>
+    <authorEmail>https://payzen.io/fr-FR/support/</authorEmail>
     <authorUrl>https://www.lyra.com</authorUrl>
-    <copyright>2015-2019 Copyright Lyra Network</copyright>
+    <copyright>2015-2026 Copyright Lyra Network</copyright>
     <license>GNU General Public License v2 or later</license>
     <description>J2STORE_PAYZEN_PLUGIN_DESCRIPTION</description>
     <scriptfile>script.payment_payzen.php</scriptfile>
@@ -30,14 +30,19 @@
         <filename>index.html</filename>
         <folder>library</folder>
         <folder>payment_payzen</folder>
-        <folder>installation_doc</folder>
     </files>
 
     <languages>
-        <language tag="en-GB">languages/en-GB.plg_j2store_payment_payzen.ini</language>
-        <language tag="fr-FR">languages/fr-FR.plg_j2store_payment_payzen.ini</language>
-        <language tag="de-DE">languages/de-DE.plg_j2store_payment_payzen.ini</language>
-        <language tag="es-ES">languages/es-ES.plg_j2store_payment_payzen.ini</language>
+        <language tag="en-GB">language/en-GB/en-GB.plg_j2store_payment_payzen.ini</language>
+        <language tag="en-GB">language/en-GB/en-GB.plg_j2store_payment_payzen.sys.ini</language>
+        <language tag="fr-FR">language/fr-FR/fr-FR.plg_j2store_payment_payzen.ini</language>
+        <language tag="fr-FR">language/fr-FR/fr-FR.plg_j2store_payment_payzen.sys.ini</language>
+        <language tag="de-DE">language/de-DE/de-DE.plg_j2store_payment_payzen.ini</language>
+        <language tag="de-DE">language/de-DE/de-DE.plg_j2store_payment_payzen.sys.ini</language>
+        <language tag="es-ES">language/es-ES/es-ES.plg_j2store_payment_payzen.ini</language>
+        <language tag="es-ES">language/es-ES/es-ES.plg_j2store_payment_payzen.sys.ini</language>
+        <language tag="pt-BR">language/pt-BR/pt-BR.plg_j2store_payment_payzen.ini</language>
+        <language tag="pt-BR">language/pt-BR/pt-BR.plg_j2store_payment_payzen.sys.ini</language>
     </languages>
 
     <media folder="images" destination="../images/j2store">
@@ -50,10 +55,9 @@
                 <field type="spacer" label="J2STORE_PAYZEN_MODULE_INFORMATION" level="level1" />
 
                 <field name="developed_by" type="payzenlabel" label="J2STORE_PAYZEN_DEVELOPED_BY" default="&lt;a href=&quot;https://www.lyra.com/&quot; target=&quot;_blank&quot;&gt;Lyra Network&lt;/a&gt;" />
-                <field name="contact_email" type="payzenlabel" label="J2STORE_PAYZEN_CONTACT_EMAIL" default="&lt;a href=&quot;mailto:support@payzen.eu&quot;&gt;support@payzen.eu&lt;/a&gt;" />
-                <field name="contrib_version" type="payzenlabel" label="J2STORE_PAYZEN_CONTRIB_VERSION" default="1.0.0" />
-                <field name="gateway_version" type="payzenlabel" label="J2STORE_PAYZEN_GATEWAY_VERSION" default="V2" />
-                <field name="documentation" type="payzendoc" description="J2STORE_PAYZEN_DOC_TEXT" default="plugins/j2store/payment_payzen/installation_doc/PayZen_J2Store_3.x_v1.0_*.pdf" />
+                <field name="contact_email" type="payzenlabel" label="J2STORE_PAYZEN_CONTACT_EMAIL" default="&lt;a href=&quot;mailto:https://payzen.io/fr-FR/support/&quot;&gt;https://payzen.io/fr-FR/support/&lt;/a&gt;" />
+                <field name="contrib_version" type="payzenlabel" label="J2STORE_PAYZEN_CONTRIB_VERSION" default="1.1.0" />
+                <field name="documentation" type="payzendoc" description="J2STORE_PAYZEN_DOC_TEXT" default="plugins/j2store/payment_payzen/installation_doc/###DOC_PATTERN###" />
 
                 <field type="spacer" label="J2STORE_PAYZEN_PAYMENT_MODULE_SETTINGS" level="level1" />
 
@@ -75,8 +79,6 @@
                     <option value="SHA-256">HMAC-SHA-256</option>
                 </field>
                 <field name="url_check" type="payzenlabel" label="J2STORE_PAYZEN_URL_CHECK" description="J2STORE_PAYZEN_URL_CHECK_DESC" url="true" default="index.php?option=com_j2store&amp;view=checkout&amp;task=confirmPayment&amp;orderpayment_type=payment_payzen" />
-                <field name="platform_url" type="text" size="50" default="https://secure.payzen.eu/vads-payment/" label="J2STORE_PAYZEN_PLATFORM_URL" description="J2STORE_PAYZEN_PLATFORM_URL_DESC" />
-
                 <field type="spacer" label="J2STORE_PAYZEN_PAYMENT_PAGE" level="level1" />
 
                 <field name="language" type="payzenlist" default="fr" label="J2STORE_PAYZEN_LANGUAGE" description="J2STORE_PAYZEN_LANGUAGE_DESC" />

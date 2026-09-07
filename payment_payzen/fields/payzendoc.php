@@ -11,44 +11,45 @@
 // No direct access.
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.form.formfield');
+if (! class_exists('Lyranetwork\Payzen\Sdk\Form\Api')) {
+    require_once JPath::clean(__DIR__ . '/../../library/sdk-autoload.php');
+}
+
+use Joomla\CMS\Form\FormField;
+use Lyranetwork\Payzen\Sdk\Form\Api as PayzenApi;
 
 /**
  * Renders a documentation link element.
  */
-class JFormFieldPayzenDoc extends JFormField
+class JFormFieldPayzenDoc extends FormField
 {
-
     protected $type = 'payzendoc';
 
     protected function getInput()
     {
         // Get documentation links.
         $docs = '' ;
-        $filenames = glob(JPATH_ROOT . '/' . $this->value);
 
-        if (!empty($filenames)) {
-            $languages = array(
-                'fr' => 'Français',
-                'en' => 'English',
-                'es' => 'Español',
-                'de' => 'Deutsch',
-                // Complete when other languages are managed.
-            );
+        $languages = [
+            'fr' => 'Français',
+            'en' => 'English',
+            'es' => 'Español',
+            'de' => 'Deutsch',
+            'pt' => 'Português'
+            // Complete when other languages are managed.
+        ];
 
-            foreach ($filenames as $filename) {
-                $base_filename = basename($filename, '.pdf');
-                $lang = substr($base_filename, -2); // Extract language code.
-
-                $docs .= ' <a target="_blank" href="' . JURI::root(). 'plugins/j2store/payment_payzen/installation_doc/' . $base_filename . '.pdf" >' . $languages[$lang] . '</a>';
-            }
+        foreach (PayzenApi::getOnlineDocUri() as $lang => $docUri) {
+            $label = $languages[$lang] ?? strtoupper((string) $lang);
+            $docs .= '<a style="margin-left: 10px; text-decoration: none; text-transform: uppercase; font-weight: bold;" href="' . $docUri . 'j2store/sitemap.html" target="_blank">' . $label . '</a>';
         }
 
         $html = JText::_($this->description) . $docs;
-        return '<div class="control-group"><span style="color: red; font-weight: bold; text-transform: uppercase;">' . $html . '</span></div>';
+
+        return '<div class="control-group"><span>' . $html . '</span></div>';
     }
 
-    public function renderField($options = array())
+    public function renderField($options = [])
     {
         return $this->getInput();
     }

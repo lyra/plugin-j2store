@@ -11,23 +11,24 @@
 // No direct access.
 defined('_JEXEC') or die('Restricted access');
 
-JFormHelper::loadFieldClass('radio');
+if (! class_exists('PayzenTools')) {
+    JLoader::register('PayzenTools', JPath::clean(__DIR__ . '/../../library/PayzenTools.php'));
+}
+
+use Joomla\CMS\Form\FormHelper;
+
+FormHelper::loadFieldClass('radio');
 
 /**
  * Renders a radio element.
  */
 class JFormFieldPayzenRadio extends JFormFieldRadio
 {
-
-    var $type = 'payzenradio';
+    public $type = 'payzenradio';
 
     protected function getLayoutData()
     {
         $data = parent::getLayoutData();
-
-        if (! class_exists('PayzenTools')) {
-            require_once(JPATH_PLUGINS . DS . 'j2store' . DS . 'payment_payzen' . DS . 'library' . DS . 'PayzenTools.php');
-        }
 
         $plugin_features = PayzenTools::$plugin_features;
 
